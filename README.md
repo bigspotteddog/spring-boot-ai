@@ -1,6 +1,6 @@
 # spring-boot-ai
 
-This repo demonstrates a spring ai command line prompt runner with the ability to fetch urls from the internet.
+This repo demonstrates a spring ai command line prompt runner with the ability to fetch urls from the internet and read and write files to the configured folders.
 
 The default ai configuration is:
 
@@ -51,3 +51,4 @@ Example for getting the title of an html doc:
   "Print the title for https://sonatype.com. Keep looking until you find the title tag."
 ```
 
+Why do I have to tell it to keep looking? The fetch mcp fetches in chunks or 5,000 characters by default. If what you are looking for is farther down than that it might not be found unless the LLM decides on its own to look farther into the doc.
