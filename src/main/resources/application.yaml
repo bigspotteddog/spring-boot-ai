@@ -24,12 +24,12 @@ spring:
           enabled: true
         stdio:
           connections:
-            # filesystem:
-            #   command: npx
-            #   args:
-            #     - "-y"
-            #     - "@modelcontextprotocol/server-filesystem"
-            #     - "/Users/jcava/Documents/projects"
+            filesystem:
+              command: npx
+              args:
+                - "-y"
+                - "@modelcontextprotocol/server-filesystem"
+                - "/Users/jcava/Documents/projects"
             fetch:
               command: uvx
               args:
