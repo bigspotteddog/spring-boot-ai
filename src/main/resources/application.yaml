@@ -29,7 +29,7 @@ spring:
               args:
                 - "-y"
                 - "@modelcontextprotocol/server-filesystem"
-                - "/Users/jcava/Documents/projects"
+                - "/Users/bob/Documents/projects"
             fetch:
               command: uvx
               args:

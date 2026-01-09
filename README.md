@@ -31,9 +31,22 @@ The default ai configuration is:
               args:
                 - "-y"
                 - "@modelcontextprotocol/server-filesystem"
-                - "/Users/jcava/Documents/projects"
+                - "/Users/bob/Documents/projects"
             fetch:
               command: uvx
               args:
                 - "mcp-server-fetch"
 ```
+
+Run with:
+
+```
+% java -jar target/demo-0.0.1-SNAPSHOT.jar "<prompt>"
+```
+
+Example for getting the title of an html doc:
+
+```
+% java -jar target/demo-0.0.1-SNAPSHOT.jar "Print the title for https://sonatype.com. Keep looking until you find the title tag."
+```
+
