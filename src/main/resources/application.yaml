@@ -18,7 +18,7 @@ spring:
           model: gpt-4o-mini
     mcp:
       client:
-        enabled: false
+        enabled: true
         type: SYNC
         auto-init: true
         request-timeout: 60s  # Increase timeout        
@@ -31,7 +31,7 @@ spring:
               args:
                 - "-y"
                 - "@modelcontextprotocol/server-filesystem"
-                - "/Users/bob/Documents/projects"
+                - "/Users/jcava/Downloads"
             fetch:
               command: uvx
               args:

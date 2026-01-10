@@ -2,18 +2,14 @@ package com.example.demo;
 
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 public class DemoApplication {
@@ -38,7 +34,6 @@ class DemoApplicationBoot {
 	public ApplicationRunner printTools(ChatService chatService) {
 		return args -> chatService.printTools();
 	}
-
 }
 
 @Component
@@ -82,51 +77,57 @@ class ChatService {
 	}
 
 	public void prompt(String prompt, String modelOverride) {
-		// Determine which ChatClient to use
-		ChatClient chatClient;
-		String modelName;
-		
+		// Use OpenAI if requested
 		if (modelOverride != null && isOpenAiModel(modelOverride)) {
 			if (openAiChatClient == null) {
 				throw new IllegalArgumentException("OpenAI model not available. Set spring.ai.openai.api-key and ensure OpenAiChatModel is configured.");
 			}
-			chatClient = openAiChatClient;
-			modelName = modelOverride;
+			promptOpenAi(prompt, modelOverride);
 		} else {
-			chatClient = anthropicChatClient;
-			modelName = modelOverride != null ? modelOverride : "claude-haiku-4-5";
+			// Default to Anthropic
+			String modelName = modelOverride != null ? modelOverride : "claude-haiku-4-5";
+			promptAnthropic(prompt, modelName);
 		}
-		
+	}
+	
+	private void promptOpenAi(String prompt, String modelName) {
 		System.out.println("Model: " + modelName);
 		
-		var request = chatClient.prompt()
+		var request = openAiChatClient.prompt()
 			.user(prompt);
 		
 		if (toolCallbacks != null) {
 			request = request.toolCallbacks(toolCallbacks);
 		}
 		
-		// Set model name in options, explicitly set temperature to 1.0 for OpenAI (models have different constraints)
-		if (isOpenAiModel(modelName)) {
-			request = request.options(OpenAiChatOptions.builder()
-				.model(modelName)
-				.temperature(1.0)
-				.build());
-		} else {
-			request = request.options(ChatOptions.builder().model(modelName).build());
-		}
+		// OpenAI: Set model and temperature (1.0 is safe for gpt-* models)
+		request = request.options(OpenAiChatOptions.builder()
+			.model(modelName)
+			.temperature(1.0)
+			.build());
 		
 		var response = request.call().content();
 		System.out.println(response);
 	}
 	
+	private void promptAnthropic(String prompt, String modelName) {
+		System.out.println("Model: " + modelName);
+		
+		var request = anthropicChatClient.prompt()
+			.user(prompt);
+		
+		if (toolCallbacks != null) {
+			request = request.toolCallbacks(toolCallbacks);
+		}
+		
+		// Anthropic: Set model only (supports various temperature values via other options)
+		request = request.options(ChatOptions.builder().model(modelName).build());
+		
+		var response = request.call().content();
+		System.out.println(response);
+	}
 
-	
 	private boolean isOpenAiModel(String modelName) {
 		return modelName.contains("gpt-") || modelName.startsWith("o1-") || modelName.startsWith("o3-");
-	}
-	
-	private boolean isAnthropicModel(String modelName) {
-		return modelName.contains("claude-");
-	}
+	}	
 }
